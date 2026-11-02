@@ -32,7 +32,9 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #card .badge{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:26px;color:#0a1022;background:var(--accent,#9fb3d9)}
 #card .where{color:var(--muted);font-size:14px}
 #card h2{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:30px;line-height:1.05}
-#card p{margin:14px 0 0;font-size:16.5px;line-height:1.5;color:#dfe5f3}
+#card ul,#caption ul{margin:12px 0 0;padding-left:20px;font-size:17px;line-height:1.4;color:#dfe5f3}
+#card li,#caption li{margin:6px 0}
+#card li::marker,#caption li::marker{color:var(--accent,#9fb3d9)}
 #card .fact{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:12px;align-items:baseline}
 #card .fact b{font-family:var(--display);font-size:34px;font-weight:700;color:var(--accent,#9fb3d9);white-space:nowrap}
 #card .fact span{color:var(--muted);font-size:14.5px;line-height:1.35}
@@ -56,7 +58,8 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #gStatus{margin:9px 2px 2px;font-size:14.5px;color:var(--muted);min-height:20px}
 #hold{height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px 2px 2px}
 #holdBar{height:100%;width:0;background:var(--p2);transition:width .08s linear}
-#legend{padding:12px 14px;font-size:14px;line-height:1.7;color:var(--muted)}
+#legend{padding:11px 14px;font-size:13.5px;line-height:1.55;color:var(--muted)}
+@media (max-height:800px){#legend .keys{display:none}#camWrap{aspect-ratio:16/10}}
 #legend b{color:var(--text);font-weight:600}
 #legend .keys{margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
 
@@ -64,9 +67,13 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #caption .ctop{display:flex;flex-direction:column;gap:2px;font-size:13.5px;color:var(--muted)}
 #caption .step{font-family:var(--display);font-weight:600;font-size:16px;color:var(--accent,#9fb3d9)}
 #caption h3{margin:8px 0 0;font-family:var(--display);font-weight:600;font-size:30px;line-height:1.08}
-#caption p{margin:10px 0 0;font-size:17px;line-height:1.5;color:#dfe5f3}
-#caption .cbar{margin-top:12px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
-#cBar{height:100%;width:0;background:var(--accent,#9fb3d9)}
+#caption .cnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+#caption .cnav button{font:inherit;font-size:14.5px;color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:9px;padding:6px 11px;cursor:pointer}
+#caption .cnav button:disabled{opacity:.35;cursor:default}
+#cDots{display:flex;gap:7px}
+#cDots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.2)}
+#cDots i.on{background:var(--accent,#9fb3d9)}
+#caption .chint{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.5;color:var(--muted)}
 
 .tag{position:fixed;left:0;top:0;pointer-events:none;display:flex;align-items:center;gap:8px;transition:opacity .25s}
 .tag .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:16px;color:#0a1022;box-shadow:0 0 0 3px rgba(7,11,26,.6)}
@@ -92,10 +99,11 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 <div id="tags"></div>
 
 <section id="caption" class="panel" hidden aria-live="polite">
-  <div class="ctop"><span class="step" id="cStep"></span><span>🙌 Both palms open to exit</span></div>
+  <div class="ctop"><span class="step" id="cStep"></span></div>
   <h3 id="cTitle"></h3>
-  <p id="cText"></p>
-  <div class="cbar"><div id="cBar"></div></div>
+  <ul id="cList"></ul>
+  <div class="cnav"><button id="cPrev">◀ Back</button><div id="cDots"></div><button id="cNext">Next ▶</button></div>
+  <div class="chint">👋 Swipe hand right = next · left = back<br>🙌 Both palms open = exit</div>
 </section>
 
 <nav id="dock" class="panel" aria-label="Telescope parts">
@@ -124,9 +132,10 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
   <div><b>✋ Open palm + move</b> rotate</div>
   <div><b>✊ Fist, push toward / pull away</b> zoom</div>
   <div><b>☝️ Hold up 1–4 fingers</b> pick a part</div>
-  <div><b>✊ Hold fist still</b> go inside the part</div>
+  <div><b>☝️ Same number again</b> or <b>✊ hold fist</b> go inside</div>
+  <div><b>👋 Swipe right / left</b> next / back step</div>
   <div><b>🙌 Both palms open</b> reset</div>
-  <div class="keys">Keys: 1–4 parts, I inside, E exploded, L light path, R reset</div>
+  <div class="keys">Keys: 1–4 parts, I inside, ← → steps, E exploded, L light path, R reset</div>
 </section>
 </div>
 
@@ -149,21 +158,38 @@ if (typeof THREE === 'undefined') { document.getElementById('fatal').hidden = fa
 
 /* ---------- Content ---------- */
 const INFO = {
-  0: { color:'#9fb3d9', badge:'R', where:'NASA infrared observatory', name:'Roman Space Telescope',
-       text:'Launched August 30, 2026. Roman’s mirror is the same size as Hubble’s, but its main camera sees a patch of sky about 100 times larger in one shot. Hold up 1–4 fingers to explore a part.',
-       big:'100×', small:'wider view of the sky than Hubble’s infrared camera' },
+  0: { color:'#9fb3d9', badge:'R', where:'NASA space telescope', name:'Roman Space Telescope',
+       b:['Launched August 30, 2026','Mirror is the same size as Hubble’s','Sees about 100× more sky at once than Hubble’s infrared camera','Hold up 1–4 fingers to pick a part'],
+       big:'100×', small:'more sky in one picture' },
   1: { color:'#7fd4ff', where:'Inside the optical barrel', name:'Primary Mirror',
-       text:'Light enters the open front of the barrel and hits this concave mirror, which reflects it up to the small secondary mirror. The secondary sends it back down through the hole in the primary’s center toward the instruments.',
-       big:'2.4 m', small:'mirror diameter, the same as Hubble’s primary mirror' },
+       b:['Big curved mirror, 2.4 m wide','Catches light from space','Bounces it to a small mirror, then down to the instruments'],
+       big:'2.4 m', small:'wide, same as Hubble’s mirror' },
   2: { color:'#ffc94d', where:'Instrument Carrier, behind the mirror', name:'Wide Field Instrument',
-       text:'Roman’s main camera. Focused light lands on a focal plane of 18 infrared detectors, kept very cold so the instrument’s own heat doesn’t drown out faint galaxies.',
-       big:'≈300 MP', small:'18 detectors, each 4,096 × 4,096 pixels' },
+       b:['Roman’s main camera','18 light sensors (detectors)','Kept super cold to see faint infrared light'],
+       big:'≈300 MP', small:'megapixels in total' },
   3: { color:'#ff7ab6', where:'Instrument Carrier, next to the WFI', name:'Coronagraph Instrument',
-       text:'A pick-off mirror steers some of the light into the coronagraph, where masks block a star’s glare and deformable mirrors cancel leftover starlight, revealing much fainter planets and dust disks nearby.',
-       big:'2', small:'deformable mirrors that change shape to cancel starlight' },
+       b:['Blocks the bright light of a star','Bendable mirrors clean up leftover glare','Lets us see planets near the star'],
+       big:'2', small:'shape-changing mirrors' },
   4: { color:'#6dffb0', where:'Underside of the spacecraft bus', name:'Ka-Band Antenna',
-       text:'Sends Roman’s huge stream of data down to Earth. It sits outside the insulated instrument housing so it can point at Earth without blocking the telescope’s view or heating the instruments.',
-       big:'~1.5M km', small:'distance from Earth to Roman’s orbit near the L2 point' }
+       b:['Radio dish under the spacecraft','Sends science data back to Earth','Sits outside so it doesn’t block the view or heat the instruments'],
+       big:'~1.5M km', small:'from Earth to Roman' }
+};
+const STEP_TEXT = {
+  1: [ { title:'Light bounces off the mirror', b:['Starlight hits the curved mirror','The curve sends all the light to one spot','That spot is called the focus'] },
+       { title:'Lighter than Hubble’s', b:['Same width as Hubble’s mirror','Less than ¼ the weight: 186 kg','First built for a spy satellite, then given to NASA'] },
+       { title:'A super-thin coating', b:['A silver layer makes it shiny','Under 400 nanometers thick','About 200× thinner than a human hair'] },
+       { title:'Almost perfectly smooth', b:['Polished extremely carefully','Average bump: only 1.2 nanometers tall'] } ],
+  2: [ { title:'The element wheel', b:['A spinning wheel in front of the camera','Holds 8 color filters, a grism and a prism','Turns to put the right one in the light’s path'] },
+       { title:'Filters pick one color', b:['A filter lets only one color through','Like looking through colored glass'] },
+       { title:'Prisms make rainbows', b:['The prism and grism split light into a rainbow (a spectrum)','Shows how fast galaxies are moving','Helps measure how fast the universe is expanding'] },
+       { title:'18 detectors', b:['18 sensors in 3 rows of 6','About 300 megapixels in total','Kept at about −184 °C so heat doesn’t hide faint light'] } ],
+  3: [ { title:'Hidden in the glare', b:['Planets are very dim next to their star','Up to 100 million times fainter','The star’s glare hides them'] },
+       { title:'Mirrors that change shape', b:['Two small bendable mirrors, about 5 cm wide','1,600+ tiny pistons push and pull each one','They cancel leftover starlight'] },
+       { title:'Holding steady', b:['A fast steering mirror tilts constantly','It cancels tiny wobbles','Keeps the star locked in place'] },
+       { title:'Blocking the star', b:['A mask covers the star','Now the faint planet shows up','The camera can count single particles of light (photons)'] } ],
+  4: [ { title:'Beaming data home', b:['A radio dish on the spacecraft','Sends science data to Earth'] },
+       { title:'A long way from home', b:['Roman is about 1.5 million km from Earth','The dish has to stay pointed at Earth'] },
+       { title:'A flood of data', b:['1 cube = all of Hubble’s data from 30 years (~172 TB)','Roman: about 116 cubes in just 5 years','Up to 20,000 TB in total (NASA estimate)'] } ]
 };
 const PART_COLOR = {1:new THREE.Color(0x7fd4ff),2:new THREE.Color(0xffc94d),3:new THREE.Color(0xff7ab6),4:new THREE.Color(0x6dffb0)};
 
@@ -360,7 +386,7 @@ IN.add(new THREE.HemisphereLight(0xc4d6ff, 0x1b1712, 0.75));
 IN.add(new THREE.Points(starGeo, starMat));
 const inCam = new THREE.PerspectiveCamera(40, W()/H(), 0.05, 600);
 const inLook = V(0,0,0);
-const STEP_SEC = 6.5;
+const STEP_SEC = 5;
 const INSIDE = {};
 const silverMat = () => new THREE.MeshStandardMaterial({ color:0xe6eeff, metalness:.85, roughness:.14, emissive:0x22324e, side:THREE.DoubleSide });
 
@@ -407,10 +433,10 @@ INSIDE[1] = (() => {
 
   return { g, parts:[mir,rays,bars,xs,bm],
     steps:[
-      { title:'Light bounces off the mirror', text:'The curved 2.4 m mirror reflects incoming starlight toward a single focus point.', cam:[7.5,4.6,11.5], look:[0,1.9,0], show:[mir,rays] },
-      { title:'Lighter than Hubble’s', text:'It’s as wide as Hubble’s mirror but less than one-fourth the weight: just 186 kg. It was originally built for a spy satellite and donated to NASA.', cam:[3.4,4,14.5], look:[2.9,1.7,0], show:[mir,bars] },
-      { title:'A coating thinner than thin', text:'The reflective silver layer is under 400 nanometers thick, about 200 times thinner than a human hair.', cam:[21,7.5,23], look:[30.3,1.6,0], show:[xs] },
-      { title:'Almost perfectly smooth', text:'The mirror is polished so finely that the average bump on its surface is only 1.2 nanometers tall.', cam:[60,6.5,12.5], look:[60,0.6,0], show:[bm] }
+      { title:'Light bounces off the mirror', cam:[7.5,4.6,11.5], look:[0,1.9,0], show:[mir,rays] },
+      { title:'Lighter than Hubble’s', cam:[3.4,4,14.5], look:[2.9,1.7,0], show:[mir,bars] },
+      { title:'A coating thinner than thin', cam:[21,7.5,23], look:[30.3,1.6,0], show:[xs] },
+      { title:'Almost perfectly smooth', cam:[60,6.5,12.5], look:[60,0.6,0], show:[bm] }
     ],
     update(i, p, t){
       if (i === 0){ for (const s of dots) along(paths[s.userData.k], (s.userData.off + t*0.18) % 1, s.position); fGlow.material.opacity = 0.6 + 0.4*Math.sin(t*4); }
@@ -474,10 +500,10 @@ INSIDE[2] = (() => {
   const near = (a, ref) => a + Math.PI*2*Math.round((ref-a)/(Math.PI*2));
   return { g, parts:[wheelG,beamIn,inLabG,redG,fan,det],
     steps:[
-      { title:'The element wheel', text:'A wheel in front of the detectors holds 8 color filters, a grism, a prism, and a dark slot for calibration. It turns to put the right one in the light’s path.', cam:[-7,5.5,11.5], look:[-0.8,1.2,0], show:[wheelG,beamIn,inLabG] },
-      { title:'Filters pick one color', text:'Turning a filter into the beam lets only one band of light through to the detectors.', cam:[2.6,5.5,15.5], look:[2.8,1.3,0], show:[wheelG,beamIn,redG,det] },
-      { title:'Prisms make rainbows', text:'The prism and grism spread light into a spectrum. That shows how fast galaxies are moving, which tells us how fast the universe has expanded.', cam:[2.6,9,13.5], look:[2.2,1.0,0], show:[wheelG,beamIn,fan,det] },
-      { title:'18 detectors, about 300 megapixels', text:'The detectors sit in 3 rows of 6 and are chilled to about −184 °C, so their own heat doesn’t swamp faint infrared light.', cam:[-1.2,2.6,4.2], look:[6.2,R,0], show:[det] }
+      { title:'The element wheel', cam:[-7,5.5,11.5], look:[-0.8,1.2,0], show:[wheelG,beamIn,inLabG] },
+      { title:'Filters pick one color', cam:[2.6,5.5,15.5], look:[2.8,1.3,0], show:[wheelG,beamIn,redG,det] },
+      { title:'Prisms make rainbows', cam:[2.6,9,13.5], look:[2.2,1.0,0], show:[wheelG,beamIn,fan,det] },
+      { title:'18 detectors, about 300 megapixels', cam:[-1.2,2.6,4.2], look:[6.2,R,0], show:[det] }
     ],
     update(i, p, t, dt){
       if (i === 0) ang += dt*0.8;
@@ -523,10 +549,10 @@ INSIDE[3] = (() => {
 
   return { g, parts:[glare,fsm,dm],
     steps:[
-      { title:'Hidden in the glare', text:'A planet can be 100 million times fainter than its star, so the star’s glare normally hides it completely.', cam:[0,0,16], look:[0,0,0], show:[glare] },
-      { title:'Mirrors that change shape', text:'Two deformable mirrors, each about 5 cm across with 1,600+ tiny actuators, flex to cancel leftover starlight. Their corrections are smaller than a strand of DNA.', cam:[37,6.5,9.5], look:[30,0.2,0], show:[dm] },
-      { title:'Holding perfectly steady', text:'A fast steering mirror tilts constantly to cancel tiny wobbles in the telescope’s pointing, so the star stays locked in place.', cam:[0,0,16], look:[0,-0.6,0], show:[glare,fsm] },
-      { title:'Blocking the star', text:'Masks block the starlight so the faint planet shows up. The camera is sensitive enough to count single photons as they arrive.', cam:[0,0,15], look:[0,0,0], show:[glare] }
+      { title:'Hidden in the glare', cam:[0,0,16], look:[0,0,0], show:[glare] },
+      { title:'Mirrors that change shape', cam:[37,6.5,9.5], look:[30,0.2,0], show:[dm] },
+      { title:'Holding perfectly steady', cam:[0,0,16], look:[0,-0.6,0], show:[glare,fsm] },
+      { title:'Blocking the star', cam:[0,0,15], look:[0,0,0], show:[glare] }
     ],
     update(i, p, t){
       let jx = 0, jy = 0;
@@ -593,9 +619,9 @@ INSIDE[4] = (() => {
 
   return { g, parts:[dishG,earthG,packets,dist,data],
     steps:[
-      { title:'Beaming data home', text:'The Ka-band antenna sends Roman’s science data to ground stations on Earth by radio.', cam:[8.6,3,38], look:[8.6,-1.2,0], show:[dishG,earthG,packets] },
-      { title:'A long way from home', text:'Roman works near the L2 point, about 1.5 million km from Earth, so the antenna has to stay pointed at Earth to send its data.', cam:[8.6,7,46], look:[8.6,-2.4,0], show:[dishG,earthG,packets,dist] },
-      { title:'A flood of data', text:'Each cube is all the data Hubble sent in 30 years (~172 TB). NASA expects Roman to send about 116 cubes’ worth, up to 20,000 TB, in five years.', cam:[40.2,12,18], look:[40.2,0,-0.3], show:[data] }
+      { title:'Beaming data home', cam:[8.6,3,38], look:[8.6,-1.2,0], show:[dishG,earthG,packets] },
+      { title:'A long way from home', cam:[8.6,7,46], look:[8.6,-2.4,0], show:[dishG,earthG,packets,dist] },
+      { title:'A flood of data', cam:[40.2,12,18], look:[40.2,0,-0.3], show:[data] }
     ],
     update(i, p, t, dt){
       earth.rotation.y += dt*0.25;
@@ -608,7 +634,7 @@ for (const k in INSIDE) { INSIDE[k].g.visible = false; IN.add(INSIDE[k].g); }
 
 /* ---------- State ---------- */
 let selected = 0, explodeTarget = 0, explodeT = 0, userLight = false, lastInteract = performance.now();
-let inside = 0, inStart = 0, lastStep = -1;
+let inside = 0, stepIdx = 0, stepStart = 0, lastStep = -1;
 const lightOn = () => userLight || (selected >= 1 && selected <= 3);
 const DEFAULT = { theta:0.75, phi:1.18, radius:18 };
 const PRESET = { 1:{theta:0.75,phi:0.92,radius:9.5}, 2:{theta:0.35,phi:1.12,radius:6.8}, 3:{theta:1.35,phi:1.12,radius:6.8}, 4:{theta:0.85,phi:2.1,radius:7.5} };
@@ -625,10 +651,10 @@ function renderCard(){
   const d = INFO[selected];
   card.style.setProperty('--accent', d.color);
   let hint = '';
-  if (selected && !inside) hint = '<div class="hint">✊ Hold a fist still (or press I) to go inside</div>';
-  if (inside) hint = '<div class="hint">Inside view: 🙌 both palms open to exit</div>';
+  if (selected && !inside) hint = `<div class="hint">Show ${selected} finger${selected===1?'':'s'} again, or hold a fist still, to go inside</div>`;
+
   card.innerHTML = `<div class="top"><div class="badge">${d.badge || selected}</div><div><div class="where">${d.where}</div><h2>${d.name}</h2></div></div>
-    <p>${d.text}</p><div class="fact"><b>${d.big}</b><span>${d.small}</span></div>${hint}`;
+    <ul>${d.b.map(x => `<li>${x}</li>`).join('')}</ul><div class="fact"><b>${d.big}</b><span>${d.small}</span></div>${hint}`;
 }
 const tagsEl = $('tags'), tags = {};
 for (const k of [1,2,3,4]){
@@ -663,9 +689,23 @@ function fadeSwap(fn){
 }
 function placeInCam(k, idx){ const st = INSIDE[k].steps[idx]; inCam.position.set(...st.cam); inLook.set(...st.look); inCam.lookAt(inLook); }
 function setInside(k){
-  inside = k; inStart = clock.elapsedTime; lastStep = -1;
+  inside = k; stepIdx = 0; stepStart = clock.elapsedTime; lastStep = -1;
   for (const j in INSIDE) INSIDE[j].g.visible = (+j === k);
   if (k) placeInCam(k, 0);
+}
+function goStep(d){
+  if (!inside) return false;
+  const n = INSIDE[inside].steps.length, j = Math.min(n-1, Math.max(0, stepIdx + d));
+  if (j === stepIdx) return false;
+  stepIdx = j; stepStart = clock.elapsedTime; poke(); return true;
+}
+function renderCaption(){
+  const n = INSIDE[inside].steps.length, tx = STEP_TEXT[inside][stepIdx];
+  $('cStep').textContent = `${INFO[inside].name} · Step ${stepIdx+1} of ${n}`;
+  $('cTitle').textContent = tx.title;
+  $('cList').innerHTML = tx.b.map(x => `<li>${x}</li>`).join('');
+  $('cDots').innerHTML = Array.from({length:n}, (_, i) => `<i class="${i===stepIdx?'on':''}"></i>`).join('');
+  $('cPrev').disabled = stepIdx === 0; $('cNext').disabled = stepIdx === n-1;
 }
 function enterInside(k){ if (!k || inside === k) return; fadeSwap(() => { setInside(k); updateUI(); }); poke(); }
 function exitInside(then){
@@ -678,6 +718,7 @@ function applySelect(k){
 }
 function selectPart(k){
   poke();
+  if (!inside && selected === k){ enterInside(k); return; }
   if (inside){ if (inside === k) return; exitInside(() => applySelect(k)); return; }
   applySelect(k); updateUI();
 }
@@ -695,9 +736,13 @@ $('bInside').onclick = toggleInside;
 $('bExplode').onclick = toggleExplode;
 $('bLight').onclick = toggleLight;
 $('bReset').onclick = reset;
+$('cPrev').onclick = () => goStep(-1);
+$('cNext').onclick = () => goStep(1);
 addEventListener('keydown', e => {
   if ('1234'.includes(e.key)) selectPart(+e.key);
   else if (e.key === 'i' || e.key === 'I' || e.key === 'Enter') toggleInside();
+  else if (inside && (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown')) { e.preventDefault(); goStep(1); }
+  else if (inside && (e.key === 'ArrowLeft' || e.key === 'PageUp')) { e.preventDefault(); goStep(-1); }
   else if (e.key === 'e' || e.key === 'E') toggleExplode();
   else if (e.key === 'l' || e.key === 'L') toggleLight();
   else if (e.key === 'Escape') { if (inside) exitInside(); else reset(); }
@@ -731,12 +776,16 @@ function pickAt(x, y){
 const vid = $('vid'), ov = $('ov'), octx = ov.getContext('2d');
 const startBtn = $('startBtn'), gStatus = $('gStatus'), holdBar = $('holdBar');
 const CONN = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
-const FIST_HOLD_MS = 1400, NUM_HOLD_MS = 600, TWO_HOLD_MS = 700;
+const FIST_HOLD_MS = 1400, NUM_HOLD_MS = 600, TWO_HOLD_MS = 700, RELEASE_MS = 450;
+const ROT_X = 13, ROT_Y = 8;   // rotation sensitivity for the open-palm gesture
+let lastNum = null;            // remembers the last number shown, so a tracking blip isn't a 'second' gesture
 let hands = null, busy = false, running = false;
 let sm = null, prevPalm = null;
 let fist = null;            // { ss, prev, ref, start, fired }
 let cand = null, candStart = 0, candFired = false;
 let two = null;             // { start, fired }
+let swipeHist = [], lastSwipe = 0, candPos = null;
+const SWIPE_DIST = 0.16, SWIPE_WINDOW_MS = 450, SWIPE_COOLDOWN_MS = 900;
 const setStatus = t => { if (gStatus.textContent !== t) gStatus.textContent = t; };
 const bar = (p, color) => { holdBar.style.width = (p*100) + '%'; if (color) holdBar.style.background = color; };
 
@@ -775,7 +824,7 @@ function analyze(lm){
   else if (count >= 1 && count <= 3) g = 'n' + count;
   return { g, size, open: count === 4, x: lm[9].x, y: lm[9].y };
 }
-function clearSingle(){ sm = null; prevPalm = null; fist = null; cand = null; }
+function clearSingle(){ sm = null; prevPalm = null; fist = null; cand = null; swipeHist = []; }
 function drawHands(list){
   if (!vid.videoWidth) return;
   if (ov.width !== vid.videoWidth){ ov.width = vid.videoWidth; ov.height = vid.videoHeight; }
@@ -809,13 +858,30 @@ function onResults(res){
 
   const h = analyze(list[0]), g = h.g;
   if (g !== 'none') poke();
-  sm = sm ? { x: sm.x + (h.x - sm.x)*0.5, y: sm.y + (h.y - sm.y)*0.5 } : { x:h.x, y:h.y };
+
+  // Swipe (inside view): open hand moving quickly sideways. Your right = next step.
+  if (h.open){
+    swipeHist.push({ t:now, x:h.x, y:h.y });
+    while (swipeHist.length && now - swipeHist[0].t > SWIPE_WINDOW_MS) swipeHist.shift();
+    if (inside && now - lastSwipe > SWIPE_COOLDOWN_MS && swipeHist.length >= 3){
+      const dx = h.x - swipeHist[0].x, dy = h.y - swipeHist[0].y;
+      if (Math.abs(dx) > SWIPE_DIST && Math.abs(dx) > 2*Math.abs(dy)){
+        lastSwipe = now; swipeHist = []; cand = null;
+        const fwd = dx < 0;   // camera image is not mirrored: moving to YOUR right lowers x
+        const moved = goStep(fwd ? 1 : -1);
+        setStatus(moved ? (fwd ? '👋 Next step' : '👋 Previous step') : (fwd ? 'Last step. Open both palms to exit.' : 'Already at the first step.'));
+        bar(0); return;
+      }
+    }
+  } else swipeHist = [];
+  sm = sm ? { x: sm.x + (h.x - sm.x)*0.65, y: sm.y + (h.y - sm.y)*0.65 } : { x:h.x, y:h.y };
 
   // Open palm: rotate
   if (g === 'palm'){
-    if (!inside && prevPalm){ want.theta += (sm.x - prevPalm.x)*6; want.phi += (sm.y - prevPalm.y)*4; }
+    if (!inside && prevPalm){ want.theta += (sm.x - prevPalm.x)*ROT_X; want.phi += (sm.y - prevPalm.y)*ROT_Y; }
     prevPalm = { x:sm.x, y:sm.y };
-    setStatus(inside ? 'Inside view. Open both palms to exit.' : '✋ Rotating');
+    if (!inside) setStatus('✋ Rotating');
+    else if (now - lastSwipe > 1200) setStatus('Inside view. Swipe right or left to change steps.');
   } else prevPalm = null;
 
   // Fist: push/pull to zoom, hold still to go inside
@@ -832,7 +898,7 @@ function onResults(res){
     fist.px = h.x; fist.py = h.y;
     if (moving || Math.abs(fist.ss/fist.ref - 1) > 0.08){ fist.ref = fist.ss; fist.start = now; if (moving) fist.fired = fist.fired && inside; }
     const held = now - fist.start;
-    if (inside){ bar(0); setStatus('Inside view. Open both palms to exit.'); }
+    if (inside){ bar(0); setStatus('Inside view. Swipe to change steps, or open both palms to exit.'); }
     else if (!selected){ bar(0); setStatus('✊ Zoom: push toward or pull away from the camera. Pick a part (1–4) to go inside.'); }
     else {
       const p = Math.min(1, Math.max(0, (held - 250)/FIST_HOLD_MS));
@@ -847,29 +913,41 @@ function onResults(res){
   // 1–4 fingers: select a part
   if (/^n[1-4]$/.test(g)){
     const k = +g[1];
-    if (cand !== g){ cand = g; candStart = now; candFired = false; }
+    if (cand !== g){
+      // Same number again within a blink (tracking glitch)? Treat it as the same gesture, not a new one.
+      if (lastNum && lastNum.k === k && now - lastNum.t < RELEASE_MS){ candFired = lastNum.fired; candStart = lastNum.start; }
+      else { candFired = false; candStart = now; }
+      cand = g; candPos = { x:h.x, y:h.y };
+    } else if (Math.hypot(h.x - candPos.x, h.y - candPos.y) > 0.05){ candStart = now; candPos = { x:h.x, y:h.y }; }
     const p = Math.min(1, (now - candStart)/NUM_HOLD_MS);
+    const goingIn = !inside && selected === k;
     bar(candFired ? 0 : p, INFO[k].color);
-    if (!candFired) setStatus(`Hold ${k} finger${k===1?'':'s'} for ${INFO[k].name}…`);
-    if (p >= 1 && !candFired){ candFired = true; selectPart(k); setStatus('Showing ' + INFO[k].name); }
+    if (!candFired) setStatus(goingIn ? `Hold ${k} again to go inside the ${INFO[k].name}…` : inside === k ? `Already inside the ${INFO[k].name}. Swipe to change steps.` : `Hold ${k} finger${k===1?'':'s'} for ${INFO[k].name}…`);
+    if (p >= 1 && !candFired){
+      candFired = true;
+      if (inside === k){ /* already inside this part: only swipes change slides */ }
+      else { selectPart(k); setStatus(goingIn ? 'Going inside…' : `Showing ${INFO[k].name}. Show ${k} again to go inside.`); }
+    }
+    lastNum = { k, t:now, fired:candFired, start:candStart };
   } else {
     cand = null;
-    if (g !== 'palm'){ bar(0); setStatus(inside ? 'Inside view. Open both palms to exit.' : 'Hand detected'); }
+    if (g !== 'palm' && now - lastSwipe > 1200){ bar(0); setStatus(inside ? 'Inside view. Swipe to change steps, or open both palms to exit.' : 'Hand detected'); }
   }
 }
-window.__romanTest = { pause: v => { testPause = v; }, dbg: () => ({ cam: inCam.position.toArray().map(v=>+v.toFixed(2)), look: inLook.toArray(), vis: inside ? INSIDE[inside].parts.map(o=>o.visible) : null, gvis: Object.keys(INSIDE).map(j=>INSIDE[j].g.visible), step:lastStep }), results: onResults, state: () => ({ selected, inside, radius: want.radius, step: lastStep }),
-  jump: (k, step) => { setInside(k); selected = k; inStart = clock.elapsedTime - (step + 0.2)*STEP_SEC; placeInCam(k, step); updateUI(); } };
+window.__romanTest = { pause: v => { testPause = v; }, dbg: () => ({ cam: inCam.position.toArray().map(v=>+v.toFixed(2)), look: inLook.toArray(), vis: inside ? INSIDE[inside].parts.map(o=>o.visible) : null, gvis: Object.keys(INSIDE).map(j=>INSIDE[j].g.visible), step:lastStep }), results: onResults, state: () => ({ selected, inside, radius: want.radius, step: lastStep, stepIdx }),
+  jump: (k, step) => { setInside(k); selected = k; stepIdx = step; stepStart = clock.elapsedTime - 0.3*STEP_SEC; placeInCam(k, step); updateUI(); },
+  next: () => goStep(1), prev: () => goStep(-1) };
 
 /* ---------- Loop ---------- */
 const tmp = V(0,0,0);
 let testPause = false;
 function loop(){
   if (testPause){ clock.getDelta(); requestAnimationFrame(loop); return; }
-  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, k = 1 - Math.exp(-dt*4);
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, k = 1 - Math.exp(-dt*6);
 
   if (inside){
     const S = INSIDE[inside], n = S.steps.length;
-    const lt = (t - inStart) % (n*STEP_SEC), idx = Math.floor(lt/STEP_SEC), p = (lt % STEP_SEC)/STEP_SEC;
+    const idx = stepIdx, p = Math.min(1, (t - stepStart)/STEP_SEC);
     const st = S.steps[idx];
     if (idx !== lastStep){
       if (lastStep >= 0 && inLook.distanceTo(tmp.set(...st.look)) > 8){
@@ -879,10 +957,8 @@ function loop(){
       }
       lastStep = idx;
       for (const o of S.parts) o.visible = st.show.includes(o);
-      $('cStep').textContent = `${INFO[inside].name} · Step ${idx+1} of ${n}`;
-      $('cTitle').textContent = st.title; $('cText').textContent = st.text;
+      renderCaption();
     }
-    $('cBar').style.width = (p*100) + '%';
     const k2 = 1 - Math.exp(-dt*2.6);
     inCam.position.lerp(tmp.set(...st.cam), k2); inLook.lerp(tmp.set(...st.look), k2); inCam.lookAt(inLook);
     S.update(idx, p, t, dt);
