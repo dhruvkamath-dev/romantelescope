@@ -26,11 +26,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--space);color:var
 #stage canvas:active{cursor:grabbing}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
-header{position:fixed;top:22px;left:26px;pointer-events:none;max-width:46vw}
-header h1{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(28px,3.4vw,46px);line-height:1;letter-spacing:.005em}
+header{position:fixed;top:22px;left:26px;pointer-events:none;max-width:52vw}
+header h1{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(24px,2.5vw,38px);line-height:1;letter-spacing:.005em}
 header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 
-#card{position:fixed;top:22px;right:26px;width:min(380px,40vw);padding:20px 22px 18px;border-left:4px solid var(--accent,#9fb3d9)}
+#card{position:fixed;top:22px;right:26px;z-index:2;width:min(380px,40vw);padding:20px 22px 18px;border-left:4px solid var(--accent,#9fb3d9)}
 #card .top{display:flex;gap:14px;align-items:center}
 #card .badge{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:26px;color:#0a1022;background:var(--accent,#9fb3d9)}
 #card .where{color:var(--muted);font-size:14px}
@@ -40,7 +40,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #card .fact b{font-family:var(--display);font-size:34px;font-weight:700;color:var(--accent,#9fb3d9);white-space:nowrap}
 #card .fact span{color:var(--muted);font-size:14.5px;line-height:1.35}
 
-#dock{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;align-items:center}
+#dock{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;max-width:calc(100vw - 32px);flex-wrap:wrap;justify-content:center;display:flex;gap:8px;padding:8px;align-items:center}
 #dock button{font:inherit;color:var(--text);background:transparent;border:1px solid transparent;border-radius:11px;padding:9px 13px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:15px;white-space:nowrap}
 #dock button:hover{background:rgba(255,255,255,.06)}
 #dock button:focus-visible,#startBtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -48,7 +48,8 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #dock button.on{background:rgba(255,255,255,.10);border-color:var(--line)}
 #dock .sep{width:1px;height:26px;background:var(--line);margin:0 4px}
 
-#camBox{position:fixed;left:22px;bottom:22px;width:260px;padding:10px}
+#leftCol{position:fixed;left:22px;top:132px;width:260px;display:flex;flex-direction:column;gap:12px;z-index:2}
+#camBox{padding:10px}
 #camWrap{position:relative;width:100%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0a1124;transform:scaleX(-1)}
 #vid,#ov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 #vid{opacity:.55}
@@ -57,7 +58,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 #hold{height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px 2px 2px}
 #holdBar{height:100%;width:0;background:var(--p2);transition:width .08s linear}
 
-#legend{position:fixed;right:22px;bottom:22px;padding:14px 16px;font-size:14px;line-height:1.75;color:var(--muted)}
+#legend{padding:12px 14px;font-size:14px;line-height:1.75;color:var(--muted)}
 #legend b{color:var(--text);font-weight:600}
 #legend .keys{margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
 
@@ -67,6 +68,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 .tag.active .t{display:block}
 .tag.dimmed{opacity:.45}
 
+#fatal[hidden]{display:none}
 #fatal{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:30px;color:var(--muted);font-size:17px}
 @media (max-width:900px){#legend{display:none}#card{width:min(330px,60vw)}}
 @media (prefers-reduced-motion:reduce){#holdBar{transition:none}}
@@ -95,6 +97,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
   <button id="bReset">Reset</button>
 </nav>
 
+<div id="leftCol">
 <section id="camBox" class="panel">
   <div id="camWrap">
     <video id="vid" playsinline muted></video>
@@ -112,6 +115,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
   <div><b>✊ Hold a fist</b> reset</div>
   <div class="keys">Keys: 1–4 parts, E exploded, L light path, R reset</div>
 </section>
+</div>
 
 <div id="fatal" hidden>The 3D library didn’t load. Reload the page; if it persists, re-upload index.html.</div>
 
@@ -319,8 +323,8 @@ function along(pts, s, target){
 /* ---------- State ---------- */
 let selected = 0, explodeTarget = 0, explodeT = 0, userLight = false, lastInteract = performance.now();
 const lightOn = () => userLight || (selected >= 1 && selected <= 3);
-const DEFAULT = { theta:0.75, phi:1.18, radius:14.5 };
-const PRESET = { 1:{theta:0.75,phi:0.92,radius:9.5}, 2:{theta:0.5,phi:0.62,radius:7.2}, 3:{theta:1.2,phi:0.66,radius:7.2}, 4:{theta:0.85,phi:2.1,radius:7.5} };
+const DEFAULT = { theta:0.75, phi:1.18, radius:18 };
+const PRESET = { 1:{theta:0.75,phi:0.92,radius:9.5}, 2:{theta:0.35,phi:1.12,radius:6.8}, 3:{theta:1.35,phi:1.12,radius:6.8}, 4:{theta:0.85,phi:2.1,radius:7.5} };
 const ANCHOR = { 1:pm, 2:wfi, 3:cgi, 4:dish };
 const cam = { theta:DEFAULT.theta, phi:DEFAULT.phi, radius:DEFAULT.radius, target:V(0,0.2,0) };
 const want = { theta:DEFAULT.theta, phi:DEFAULT.phi, radius:DEFAULT.radius, target:V(0,0.2,0) };
@@ -359,7 +363,7 @@ function reset(){
   want.theta = nearestAngle(DEFAULT.theta, cam.theta); want.phi = DEFAULT.phi; want.radius = DEFAULT.radius;
   renderCard(); updateUI(); poke();
 }
-function toggleExplode(){ explodeTarget = explodeTarget ? 0 : 1; if (!selected) want.radius = explodeTarget ? 18 : DEFAULT.radius; updateUI(); poke(); }
+function toggleExplode(){ explodeTarget = explodeTarget ? 0 : 1; if (!selected) want.radius = explodeTarget ? 21 : DEFAULT.radius; updateUI(); poke(); }
 function toggleLight(){ userLight = !userLight; updateUI(); poke(); }
 
 document.querySelectorAll('#dock [data-part]').forEach(b => b.addEventListener('click', () => selectPart(+b.dataset.part)));
@@ -506,7 +510,7 @@ function loop(){
   if (!selected && !drag && performance.now() - lastInteract > 8000) want.theta += dt*0.12;
   want.phi = Math.min(2.95, Math.max(0.15, want.phi));
   want.radius = Math.min(26, Math.max(4, want.radius));
-  if (selected) ANCHOR[selected].getWorldPosition(want.target); else want.target.set(0,0.2,0);
+  if (selected) ANCHOR[selected].getWorldPosition(want.target); else want.target.set(0,-0.2,0);
   cam.theta += (want.theta - cam.theta)*k; cam.phi += (want.phi - cam.phi)*k; cam.radius += (want.radius - cam.radius)*k;
   cam.target.lerp(want.target, k);
   const sp = Math.sin(cam.phi);
