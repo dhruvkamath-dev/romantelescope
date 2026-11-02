@@ -110,7 +110,7 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
   <button data-part="1"><span class="dot" style="background:var(--p1)">1</span>Primary Mirror</button>
   <button data-part="2"><span class="dot" style="background:var(--p2)">2</span>Wide Field Instrument</button>
   <button data-part="3"><span class="dot" style="background:var(--p3)">3</span>Coronagraph</button>
-  <button data-part="4"><span class="dot" style="background:var(--p4)">4</span>Ka-Band Antenna</button>
+  <button data-part="4"><span class="dot" style="background:var(--p4)">4</span>Ka-Band Antenna 🤘</button>
   <span class="sep"></span>
   <button id="bInside">Go inside</button>
   <button id="bExplode">Exploded view</button>
@@ -131,7 +131,8 @@ header p{margin:8px 0 0;color:var(--muted);font-size:15px}
 <section id="legend" class="panel">
   <div><b>✋ Open palm + move</b> rotate</div>
   <div><b>✊ Fist, push toward / pull away</b> zoom</div>
-  <div><b>☝️ Hold up 1–4 fingers</b> pick a part</div>
+  <div><b>☝️ Hold up 1–3 fingers</b> parts 1–3</div>
+  <div><b>🤘 Rock sign</b> part 4 (antenna)</div>
   <div><b>☝️ Same number again</b> or <b>✊ hold fist</b> go inside</div>
   <div><b>👋 Swipe right / left</b> next / back step</div>
   <div><b>🙌 Both palms open</b> reset</div>
@@ -159,7 +160,7 @@ if (typeof THREE === 'undefined') { document.getElementById('fatal').hidden = fa
 /* ---------- Content ---------- */
 const INFO = {
   0: { color:'#9fb3d9', badge:'R', where:'NASA space telescope', name:'Roman Space Telescope',
-       b:['Launched August 30, 2026','Mirror is the same size as Hubble’s','Sees about 100× more sky at once than Hubble’s infrared camera','Hold up 1–4 fingers to pick a part'],
+       b:['Launched August 30, 2026','Mirror is the same size as Hubble’s','Sees about 100× more sky at once than Hubble’s infrared camera','Hold up 1–3 fingers, or 🤘 for part 4, to pick a part'],
        big:'100×', small:'more sky in one picture' },
   1: { color:'#7fd4ff', where:'Inside the optical barrel', name:'Primary Mirror',
        b:['Big curved mirror, 2.4 m wide','Catches light from space','Bounces it to a small mirror, then down to the instruments'],
@@ -651,7 +652,7 @@ function renderCard(){
   const d = INFO[selected];
   card.style.setProperty('--accent', d.color);
   let hint = '';
-  if (selected && !inside) hint = `<div class="hint">Show ${selected} finger${selected===1?'':'s'} again, or hold a fist still, to go inside</div>`;
+  if (selected && !inside) hint = `<div class="hint">Show ${sign(selected)} again, or hold a fist still, to go inside</div>`;
 
   card.innerHTML = `<div class="top"><div class="badge">${d.badge || selected}</div><div><div class="where">${d.where}</div><h2>${d.name}</h2></div></div>
     <ul>${d.b.map(x => `<li>${x}</li>`).join('')}</ul><div class="fact"><b>${d.big}</b><span>${d.small}</span></div>${hint}`;
@@ -811,6 +812,7 @@ async function pump(){
   if (vid.readyState >= 2 && !busy){ busy = true; try { await hands.send({ image:vid }); } catch (e) { console.error(e); } busy = false; }
   requestAnimationFrame(pump);
 }
+const sign = k => k === 4 ? '🤘' : `${k} finger${k===1?'':'s'}`;
 const dist = (lm,a,b) => Math.hypot(lm[a].x-lm[b].x, lm[a].y-lm[b].y);
 function analyze(lm){
   const size = dist(lm,0,9);
@@ -818,9 +820,10 @@ function analyze(lm){
   const count = ext.filter(Boolean).length;
   const thumb = dist(lm,4,9) / size;
   let g = 'none';
+  const horns = ext[0] && !ext[1] && !ext[2] && ext[3];   // 🤘 index + pinky up, middle + ring down
   if (count === 0) g = 'fist';
-  else if (count === 4 && thumb > 0.8) g = 'palm';
-  else if (count === 4 && thumb < 0.65) g = 'n4';
+  else if (horns) g = 'n4';                                // 🤘 = part 4
+  else if (count === 4) g = 'palm';
   else if (count >= 1 && count <= 3) g = 'n' + count;
   return { g, size, open: count === 4, x: lm[9].x, y: lm[9].y };
 }
@@ -899,7 +902,7 @@ function onResults(res){
     if (moving || Math.abs(fist.ss/fist.ref - 1) > 0.08){ fist.ref = fist.ss; fist.start = now; if (moving) fist.fired = fist.fired && inside; }
     const held = now - fist.start;
     if (inside){ bar(0); setStatus('Inside view. Swipe to change steps, or open both palms to exit.'); }
-    else if (!selected){ bar(0); setStatus('✊ Zoom: push toward or pull away from the camera. Pick a part (1–4) to go inside.'); }
+    else if (!selected){ bar(0); setStatus('✊ Zoom: push toward or pull away from the camera. Pick a part (1–3 fingers or 🤘) to go inside.'); }
     else {
       const p = Math.min(1, Math.max(0, (held - 250)/FIST_HOLD_MS));
       bar(fist.fired ? 0 : p, INFO[selected].color);
@@ -922,11 +925,11 @@ function onResults(res){
     const p = Math.min(1, (now - candStart)/NUM_HOLD_MS);
     const goingIn = !inside && selected === k;
     bar(candFired ? 0 : p, INFO[k].color);
-    if (!candFired) setStatus(goingIn ? `Hold ${k} again to go inside the ${INFO[k].name}…` : inside === k ? `Already inside the ${INFO[k].name}. Swipe to change steps.` : `Hold ${k} finger${k===1?'':'s'} for ${INFO[k].name}…`);
+    if (!candFired) setStatus(goingIn ? `Hold ${sign(k)} again to go inside the ${INFO[k].name}…` : inside === k ? `Already inside the ${INFO[k].name}. Swipe to change steps.` : `Hold ${sign(k)} for ${INFO[k].name}…`);
     if (p >= 1 && !candFired){
       candFired = true;
       if (inside === k){ /* already inside this part: only swipes change slides */ }
-      else { selectPart(k); setStatus(goingIn ? 'Going inside…' : `Showing ${INFO[k].name}. Show ${k} again to go inside.`); }
+      else { selectPart(k); setStatus(goingIn ? 'Going inside…' : `Showing ${INFO[k].name}. Show ${sign(k)} again to go inside.`); }
     }
     lastNum = { k, t:now, fired:candFired, start:candStart };
   } else {
